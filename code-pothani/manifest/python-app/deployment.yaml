@@ -1,0 +1,53 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-app
+  labels:
+    app: python-app-dep
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: python-app-pod
+  template:
+    metadata:
+      labels:
+        app: python-app-pod
+    spec:
+      containers:
+      - name: python-app
+        image: acr01231224.azurecr.io/pythonapp-env:latest
+        ports:
+        - containerPort: 5010
+        env:
+        - name: REDIS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: REDIS_HOST
+
+
+--- 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        ports:
+        - containerPort: 6379
